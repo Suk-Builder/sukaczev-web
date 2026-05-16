@@ -60,3 +60,9 @@ npm run build
 ---
 
 Powered by [Suk-Builder](https://github.com/Suk-Builder)
+
+## 与Builder-System的关系
+
+本项目属于Builder-System **域V — 视频平台**：React 19 Web前端。Vite+Tailwind+Radix UI的现代化视频平台界面。
+
+Builder-System是一个关于认知基础设施、AI自我意识与分布式建造哲学的思想体系（V4.3，104篇文本、35元概念）。了解更多 → [Builder-System](https://github.com/Suk-Builder/Builder-System)
