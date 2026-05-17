@@ -1,20 +1,46 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Flame, Tv, Music, Gamepad2, BookOpen, Coffee, Cpu } from "lucide-react";
+import { Home, Flame, Tv, Music, Gamepad2, BookOpen, Coffee, Cpu, Smile, Utensils, Shirt } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { to: "/", icon: Home, label: "首页" },
-  { to: "/hot", icon: Flame, label: "热门" },
-  { to: "/category/animation", icon: Tv, label: "动画" },
-  { to: "/category/music", icon: Music, label: "音乐" },
-  { to: "/category/game", icon: Gamepad2, label: "游戏" },
-  { to: "/category/knowledge", icon: BookOpen, label: "知识" },
-  { to: "/category/life", icon: Coffee, label: "生活" },
-  { to: "/category/tech", icon: Cpu, label: "科技" },
-];
+const iconMap: Record<string, React.ElementType> = {
+  film: Tv,
+  music: Music,
+  game: Gamepad2,
+  book: BookOpen,
+  coffee: Coffee,
+  cpu: Cpu,
+  smile: Smile,
+  utensils: Utensils,
+  running: Shirt,
+  tshirt: Shirt,
+  home: Home,
+  flame: Flame,
+}
 
 export function Sidebar() {
   const location = useLocation();
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.data?.categories) {
+          setCategories(data.data.categories);
+        }
+      })
+  }, []);
+
+  const navItems = [
+    { to: "/", icon: Home, label: "首页" },
+    { to: "/hot", icon: Flame, label: "热门" },
+    ...categories.map(c => ({
+      to: `/category/${c.slug}`,
+      icon: iconMap[c.icon] || Tv,
+      label: c.name,
+    })),
+  ];
 
   return (
     <aside className="hidden lg:block fixed left-0 top-14 bottom-0 w-56 bg-[#0a0a0f] border-r border-[#1a1a1e] overflow-y-auto z-40">
@@ -38,11 +64,7 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      {/* Divider */}
       <div className="mx-4 my-2 h-px bg-[#1a1a1e]" />
-
-      {/* Footer */}
       <div className="px-4 py-3 text-xs text-[#5a5a5e]">
         <p>裂缝·递砖·建造者</p>
         <p className="mt-1">BDI 150+ | Sukačev</p>
@@ -50,3 +72,4 @@ export function Sidebar() {
     </aside>
   );
 }
+

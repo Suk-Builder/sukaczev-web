@@ -1,6 +1,6 @@
 import { Play, MessageSquare } from 'lucide-react';
-import { useNavigate } from 'react-router';
-import type { VideoItem } from '../data/mockVideos';
+import { useNavigate } from 'react-router-dom';
+import type { VideoItem } from '../types/video';
 
 interface VideoCardProps {
   video: VideoItem;
@@ -37,7 +37,7 @@ export default function VideoCard({ video }: VideoCardProps) {
       {/* Thumbnail */}
       <div className="relative w-full overflow-hidden rounded-[6px] bg-gray-100" style={{ aspectRatio: '16/9' }}>
         <img
-          src={video.thumb}
+          src={video.thumbnail_url}
           alt={video.title}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
@@ -50,30 +50,28 @@ export default function VideoCard({ video }: VideoCardProps) {
 
       {/* Info */}
       <div className="mt-2 flex gap-2.5">
-        {/* Avatar */}
-        <img
-          src={video.avatar}
-          alt={video.author}
-          className="mt-0.5 h-6 w-6 flex-shrink-0 rounded-full object-cover"
-        />
+        {/* Avatar - placeholder for now */}
+        <div className="mt-0.5 h-6 w-6 flex-shrink-0 rounded-full bg-[#CD5700]/20 flex items-center justify-center text-[10px] text-[#CD5700] font-bold">
+          S
+        </div>
         <div className="min-w-0 flex-1">
           {/* Title */}
-          <h3 className="text-[14px] leading-[1.4] font-medium text-[#222] line-clamp-2 group-hover:text-[#00aeec] transition-colors">
+          <h3 className="text-[14px] leading-[1.4] font-medium text-[#e8e6e3] line-clamp-2 group-hover:text-[#CD5700] transition-colors">
             {video.title}
           </h3>
-          {/* Author */}
+          {/* Author - placeholder */}
           <p className="mt-1 text-[12px] text-[#9499a0] truncate">
-            {video.author}
+            SUK_白桦
           </p>
           {/* Stats */}
           <div className="mt-0.5 flex items-center gap-3 text-[12px] text-[#9499a0]">
             <span className="flex items-center gap-0.5">
               <Play className="h-3 w-3" />
-              {formatCount(video.views)}
+              {formatCount(video.views_count)}
             </span>
             <span className="flex items-center gap-0.5">
               <MessageSquare className="h-3 w-3" />
-              {formatCount(video.danmaku)}
+              {formatCount(video.danmaku_count)}
             </span>
           </div>
         </div>
@@ -81,3 +79,4 @@ export default function VideoCard({ video }: VideoCardProps) {
     </div>
   );
 }
+

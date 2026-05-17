@@ -1,96 +1,81 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Menu, X, Upload, User } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Search, Menu, X, Upload, User, BookOpen } from "lucide-react";
 
 export function Header() {
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
   const navigate = useNavigate();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
-      setSearchOpen(false);
+  const handleSearch = () => {
+    if (searchText.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchText.trim())}`);
+      setIsSearchOpen(false);
+      setSearchText("");
     }
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0f]/95 backdrop-blur-sm border-b border-[#CD5700]/20">
-      <div className="max-w-[1800px] mx-auto px-4 h-14 flex items-center gap-4">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <span className="text-xl font-bold tracking-tight">
-            <span className="text-[#CD5700]">Suka</span>
-            <span className="text-[#e8e6e3]">čev</span>
-          </span>
-        </Link>
-
-        {/* Desktop Search */}
-        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl">
-          <div className="relative w-full">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="搜索裂缝中的建造..."
-              className="w-full h-9 pl-10 pr-4 bg-[#121214] border border-[#2a2a2e] rounded-lg text-sm text-[#e8e6e3] placeholder:text-[#5a5a5e] focus:outline-none focus:border-[#CD5700]/50 focus:ring-1 focus:ring-[#CD5700]/20 transition-all"
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5a5a5e]" />
-          </div>
-        </form>
-
-        {/* Right Actions */}
-        <div className="flex items-center gap-2 ml-auto">
-          <button
-            onClick={() => setSearchOpen(!searchOpen)}
-            className="md:hidden p-2 text-[#8a8680] hover:text-[#CD5700] transition-colors"
-          >
-            <Search className="w-5 h-5" />
+    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-[#0a0a0f]/95 backdrop-blur-md border-b border-[#1a1a1e]">
+      <div className="h-full mx-auto px-4 flex items-center justify-between max-w-[1920px]">
+        {/* Left */}
+        <div className="flex items-center gap-3">
+          <button className="lg:hidden p-2 text-[#8a8680] hover:text-[#CD5700]">
+            <Menu className="w-5 h-5" />
           </button>
-          <Link
-            to="/upload"
-            className="hidden sm:flex items-center gap-1.5 h-8 px-4 bg-[#CD5700] hover:bg-[#b84d00] text-white text-sm font-medium rounded transition-colors"
-          >
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-[#CD5700] rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">S</span>
+            </div>
+            <span className="hidden sm:block text-[#e8e6e3] font-semibold">Suka<span className="text-[#CD5700]">č</span>ev</span>
+          </Link>
+        </div>
+
+        {/* Center - Search */}
+        <div className="flex-1 max-w-xl mx-4">
+          {isSearchOpen ? (
+            <div className="h-8 bg-[#1a1a1e] border border-[#CD5700]/50 rounded-full flex items-center px-4">
+              <Search className="w-4 h-4 text-[#CD5700] mr-2 shrink-0" />
+              <input
+                type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                placeholder="搜索视频、用户..."
+                className="flex-1 bg-transparent text-sm text-[#e8e6e3] placeholder:text-[#5a5a5e] outline-none"
+                autoFocus
+              />
+              <button onClick={() => setIsSearchOpen(false)} className="ml-2 text-[#5a5a5e] hover:text-[#e8e6e3]">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div
+              className="h-8 bg-[#1a1a1e] border border-[#2a2a2e] rounded-full flex items-center px-4 cursor-pointer hover:border-[#CD5700]/30 transition-colors"
+              onClick={() => setIsSearchOpen(true)}
+            >
+              <Search className="w-4 h-4 text-[#5a5a5e] mr-2" />
+              <span className="text-[#5a5a5e] text-sm">搜索视频、用户...</span>
+            </div>
+          )}
+        </div>
+
+        {/* Right */}
+        <div className="flex items-center gap-2">
+          <Link to="/articles" className="hidden sm:flex items-center gap-1.5 h-8 px-4 border border-[#2a2a2e] hover:border-[#CD5700]/50 text-[#e8e6e3] text-sm rounded transition-colors">
+            <BookOpen className="w-4 h-4" />
+            专栏
+          </Link>
+          <Link to="/upload" className="hidden sm:flex items-center gap-1.5 h-8 px-4 bg-[#CD5700] hover:bg-[#b84d00] text-white text-sm font-medium rounded transition-colors">
             <Upload className="w-4 h-4" />
             投稿
           </Link>
-          <Link
-            to="/login"
-            className="flex items-center gap-1.5 h-8 px-4 border border-[#2a2a2e] hover:border-[#CD5700]/50 text-[#e8e6e3] text-sm rounded transition-colors"
-          >
+          <Link to="/login" className="w-8 h-8 rounded-full bg-[#1a1a1e] flex items-center justify-center text-[#8a8680] hover:text-[#e8e6e3] transition-colors">
             <User className="w-4 h-4" />
-            登录
           </Link>
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="lg:hidden p-2 text-[#8a8680] hover:text-[#CD5700] transition-colors"
-          >
-            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile Search */}
-      {searchOpen && (
-        <div className="md:hidden px-4 pb-3 border-t border-[#1a1a1e]">
-          <form onSubmit={handleSearch} className="mt-2">
-            <div className="relative">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="搜索..."
-                autoFocus
-                className="w-full h-10 pl-10 pr-4 bg-[#121214] border border-[#2a2a2e] rounded-lg text-sm text-[#e8e6e3] placeholder:text-[#5a5a5e] focus:outline-none focus:border-[#CD5700]/50"
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5a5a5e]" />
-            </div>
-          </form>
-        </div>
-      )}
     </header>
   );
 }
+

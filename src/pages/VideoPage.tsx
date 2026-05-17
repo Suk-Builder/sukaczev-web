@@ -1,5 +1,5 @@
 import { useRef, useCallback, useState, useEffect } from 'react';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import {
   ThumbsUp,
   Coins,
@@ -14,10 +14,12 @@ import {
   MoreHorizontal,
 } from 'lucide-react';
 import VideoPlayer, { VideoPlayerHandle } from '@/components/VideoPlayer';
-import DanmakuEngine, { DanmakuEngineHandle, DanmakuItem } from '@/components/DanmakuEngine';
-import CommentSection, { CommentItem } from '@/components/CommentSection';
+import DanmakuEngine from '@/components/DanmakuEngine';
+import CommentSection from '@/components/CommentSection';
+import BilibiliPlayer from '@/components/BilibiliPlayer';
 
 const API_BASE = '/api';
+
 
 interface VideoAuthor {
   name: string;
@@ -145,7 +147,6 @@ function RelatedVideoCard({ video: v }: { video: RelatedVideo }) {
 export default function VideoPage() {
   const { id } = useParams<{ id: string }>();
   const playerRef = useRef<VideoPlayerHandle>(null);
-  const danmakuRef = useRef<DanmakuEngineHandle>(null);
   const [isFollowing, setIsFollowing] = useState(false);
 
   // API data states
@@ -163,8 +164,6 @@ export default function VideoPage() {
     uploadTime: '',
     category: '',
   });
-  const [danmakuList, setDanmakuList] = useState<DanmakuItem[]>([]);
-  const [comments, setComments] = useState<CommentItem[]>([]);
   const [videoUrl, setVideoUrl] = useState<string>(DEFAULT_VIDEO_URL);
   const [poster, setPoster] = useState<string>(DEFAULT_POSTER);
 
@@ -201,59 +200,6 @@ export default function VideoPage() {
       .catch(err => console.error('视频详情加载失败:', err));
   }, [id]);
 
-  // Fetch danmakus
-  useEffect(() => {
-    if (!id) return;
-    fetch(`${API_BASE}/danmakus?videoId=${id}`)
-      .then(r => r.json())
-      .then(data => {
-        const list = data.data || [];
-        if (Array.isArray(list) && list.length > 0) {
-          setDanmakuList(list.map((d: any, i: number) => ({
-            id: d.id || i + 1,
-            text: d.text || d.content || '',
-            time: d.time || d.timestamp || 0,
-            color: d.color || '#ffffff',
-            mode: d.mode || 0,
-          })));
-        }
-      })
-      .catch(() => {});
-  }, [id]);
-
-  // Fetch comments
-  useEffect(() => {
-    if (!id) return;
-    fetch(`${API_BASE}/comments?videoId=${id}`)
-      .then(r => r.json())
-      .then(data => {
-        const list = data.data?.comments || data.data || [];
-        if (Array.isArray(list) && list.length > 0) {
-          setComments(list.map((c: any) => ({
-            id: c.id || String(Math.random()),
-            user: c.user || c.username || c.author_name || '匿名用户',
-            avatar: c.avatar || c.user_avatar || `https://picsum.photos/40/40?random=${c.id || Math.random()}`,
-            content: c.content || c.text || '',
-            likes: c.likes || c.likes_count || 0,
-            replies: c.replies || c.replies_count || 0,
-            time: c.time || c.created_at || '刚刚',
-            liked: c.liked || false,
-            replyList: (c.replyList || c.replies_list || []).map((r: any) => ({
-              id: r.id || String(Math.random()),
-              user: r.user || r.username || '匿名用户',
-              avatar: r.avatar || r.user_avatar || `https://picsum.photos/40/40?random=${r.id || Math.random()}`,
-              content: r.content || r.text || '',
-              likes: r.likes || 0,
-              time: r.time || r.created_at || '刚刚',
-              toUser: r.toUser || r.to_user,
-            })),
-          })));
-        }
-      })
-      .catch(() => {});
-  }, [id]);
-
-  // Send danmaku handler
   const handleSendDanmaku = useCallback(
     (d: { text: string; color: string; mode: number }) => {
       if (!id) return;
@@ -268,7 +214,6 @@ export default function VideoPage() {
 
   // Send comment handler - passed via custom event or could be extended
   const handleTimeUpdate = useCallback((time: number) => {
-    danmakuRef.current?.onTimeUpdate(time);
   }, []);
 
   return (
@@ -279,18 +224,22 @@ export default function VideoPage() {
           <div className="flex-1 min-w-0">
             {/* Video Player + Danmaku */}
             <div className="relative">
-              <VideoPlayer
-                ref={playerRef}
-                src={videoUrl}
-                poster={poster}
-                onTimeUpdate={handleTimeUpdate}
-              >
-                <DanmakuEngine 
-                  ref={danmakuRef} 
-                  danmakuList={danmakuList.length > 0 ? danmakuList : undefined}
-                  onSendDanmaku={handleSendDanmaku} 
-                />
-              </VideoPlayer>
+              {videoUrl.includes('player.bilibili.com') || videoUrl.includes('bvid=') ? (
+                <BilibiliPlayer videoUrl={videoUrl} className="rounded-lg" />
+              ) : (
+                <VideoPlayer
+                  ref={playerRef}
+                  src={videoUrl}
+                  poster={poster}
+                  onTimeUpdate={handleTimeUpdate}
+                >
+                  <DanmakuEngine 
+                    
+                    videoId={id!}
+                     
+                  />
+                </VideoPlayer>
+              )}
             </div>
 
             {/* Video Info */}
@@ -401,7 +350,7 @@ export default function VideoPage() {
             </div>
 
             {/* Comment Section */}
-            <CommentSection comments={comments.length > 0 ? comments : undefined} />
+            <CommentSection videoId={id!} />
           </div>
 
           {/* RIGHT: Related videos */}
